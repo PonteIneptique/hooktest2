@@ -85,10 +85,14 @@ def convert_and_check(input_path: str, output_path: str) -> bool:
         for citation in doc.getReffs(level=level)
         if citation
     ])
+
     return ctsReffs == citeReffs
+
+
+import os
 
 
 print(convert_and_check(
     "/home/tclerice/Downloads/tlg0004.tlg001.perseus-grc2(1).xml",
-    "tests/test_data/tlg0004.tlg001.perseus-grc2.xml"
+    os.path.join(os.path.dirname(__file__), "tests/test_data/tlg0004.tlg001.perseus-grc2.xml")
 ))
