@@ -1,6 +1,5 @@
 import dataclasses
-from typing import Dict, List, Optional
-from collections import Counter
+from typing import Dict, List, Optional, Tuple
 
 from dapitains.tei.citeStructure import CitableUnit
 from dapitains.tei.document import Document
@@ -21,6 +20,13 @@ class Log:
 class Result:
     target: str
     statuses: List[Log] = dataclasses.field(default_factory=list)
+
+    @property
+    def status(self):
+        for s in self.statuses:
+            if not s:
+                return s
+        return True
 
     def __repr__(self):
         return f"<Result target='{self.target}'>\n\t{"\n".join(["\t"+repr(log) for log in self.statuses])}\n</Result>"
@@ -49,9 +55,9 @@ def _stringify_tree_count(tree) -> str:
     ])
 
 
-class Parser:
+class Tester:
     """
-    >>> p = Parser()
+    >>> p = Tester()
     >>> p.ingest(["/home/tclerice/dev/MyDapytains/tests/catalog/example-collection.xml"])
     >>> p.results
     >>> p.tests()
@@ -60,7 +66,12 @@ class Parser:
         self.catalog = Catalog()
         self.results: Dict[str, Result] = {}
 
-    def ingest(self, files: List[str]):
+    def ingest(self, files: List[str]) -> Tuple[int, int]:
+        """ Ingest catalog(s) files to test resources
+
+        :param files: Catalog files following the Dapitains structure
+        :returns: Number of collections found, number of resources found
+        """
         for file in files:
             try:
                 before = len(self.catalog.relationships)
@@ -85,16 +96,24 @@ class Parser:
             except Exception as E:
                 self.results[file] = Result(file, [Log("parse", False, E)])
 
-        print("{} collection(s) found".format(len(self.catalog.objects)))
-        print("{} resource(s) found".format(len([o for o in self.catalog.objects.values() if o.resource])))
+        return len(self.catalog.objects), len([o for o in self.catalog.objects.values() if o.resource])
 
     def tests(self):
         resources = [o for o in self.catalog.objects.values() if o.resource]
         for r in resources:
-            doc = Document(r.filepath)
+            try:
+                doc = Document(r.filepath)
+            except Exception as E:
+                self.results[r.filepath] = Result(
+                    r.filepath,
+                    [Log("parse", False, details=f"Exception at parsing time: {E}")]
+                )
+                continue
+
             print(f"{r.identifier}: {len(doc.citeStructure)} tree(s)")
             trees = "\n".join([
                 f"Tree:{tree}->{_stringify_tree_count(_count_tree(doc.get_reffs(tree)))}"
                 for tree in doc.citeStructure
                 ])
             print(trees)
+

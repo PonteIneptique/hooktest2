@@ -1,6 +1,6 @@
-"""
+""" Converts a file
 
-pip install git+https://github.com/distributed-text-services/MyDapytains.git mycapytain
+pip install dapytains mycapytain
 """
 import lxml.etree as et
 import re
