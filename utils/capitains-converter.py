@@ -55,8 +55,7 @@ def convert(file: str) -> str:
 
     refsDecl = refsDecl[0]
     levels = {}
-
-    for element in refsDecl:
+    for element in refsDecl.xpath("./t:cRefPattern", namespaces={"t": "http://www.tei-c.org/ns/1.0"}):
         l = [int(el) for el in re.findall(r"\$(\d+)", element.attrib["replacementPattern"])][-1]
         levels[l] = element
 
@@ -89,10 +88,16 @@ def convert_and_check(input_path: str, output_path: str) -> bool:
     return ctsReffs == citeReffs
 
 
-import os
+if __name__ == "__main__":
+    import sys
+    import os
 
-
-print(convert_and_check(
-    "/home/tclerice/Downloads/tlg0004.tlg001.perseus-grc2(1).xml",
-    os.path.join(os.path.dirname(__file__), "tests/test_data/tlg0004.tlg001.perseus-grc2.xml")
-))
+    file = "/home/tclerice/Documents/errors/_replacementPattern_/tlg0007.tlg078.perseus-grc2.xml"
+    target = os.path.join(os.path.dirname(__file__), "..", "tests", "test_data", os.path.basename(file))
+    if sys.argv[1:]:
+        if len(sys.argv[1:]) == 1:
+            file = sys.argv[1]
+            target = os.path.join(os.path.dirname(__file__), "..", "tests", "test_data", os.path.basename(file))
+        else:
+            file, target = sys.argv[1:]
+    convert_and_check(file, target)

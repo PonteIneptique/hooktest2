@@ -7,5 +7,12 @@
     </dublinCore>
     <members>
         <resource filepath="./resource.xml"/>
+        <resource identifier="urn:cts:greekLit:tlg0007.tlg078.perseus-grc2" filepath="tlg0007.tlg078.perseus-grc2.xml">
+            <title>Γαμικὰ παραγγέλματα</title>
+            <description>By Plutarch</description>
+        </resource>
+        <resource identifier="test" filepath="tlg0005.tlg001.perseus-grc2.xml">
+            <title>Εἰδύλλια</title>
+        </resource>
     </members>
 </collection>

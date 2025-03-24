@@ -96,7 +96,7 @@ class Tester:
                 before = len(self.catalog.relationships)
                 _, collection = parse(file, self.catalog)
             except Exception as E:
-                self.results[file] = Result(file, [Log("parse", False, E)])
+                self.results[file] = Result(file, [Log("parse", False, details=str(E))])
                 continue
             self.results[file] = Result(
                 file, [
@@ -138,10 +138,25 @@ class Tester:
                 )
                 continue
 
-            print(f"{r.identifier}: {len(doc.citeStructure)} tree(s)")
-            trees = "\n".join([
-                f"Tree:{tree}->{_stringify_tree_count(_count_tree(doc.get_reffs(tree)))}"
-                for tree in doc.citeStructure
-                ])
-            print(trees)
+            self.results[r.filepath] = Result(
+                r.filepath,
+                [
+                    Log("parse", True),
+                    Log("citeTrees", True, details=f"Tree(s) found: {len(doc.citeStructure)}")
+                ]
+            )
+            # Now check the reference / structure
+            reffs = {tree: doc.get_reffs(tree) for tree in doc.citeStructure}
+            self.results[r.filepath].statuses.append(
+                Log(
+                    "citeStructures",
+                    True,
+                    details="\n".join([
+                        f"Tree:{tree}->{_stringify_tree_count(_count_tree(reffs[tree]))}"
+                        for tree in reffs
+                    ])
+                )
+            )
+        return [r.filepath for r in resources]
+
 

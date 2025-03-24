@@ -1,3 +1,4 @@
+import os.path
 from typing import List
 from .tester import Tester, Log
 import click
@@ -62,7 +63,8 @@ class CustomLogger:
 
 @click.command
 @click.argument("files", nargs=-1, type=click.Path(file_okay=True, dir_okay=False, exists=True))
-def cli(files):
+@click.option("-m", "--include-metadata-report", is_flag=True, default=False)
+def cli(files, include_metadata_report):
     tester = Tester()
     printer = CustomLogger("verbose")
     count_collections, count_resources = tester.ingest(files)
@@ -70,10 +72,11 @@ def cli(files):
     printer.info(f"Found {count_collections} collection(s)")
     printer.info(f"Found {count_resources} resource(s)")
 
+    #
+    #  Collection files
+    #
     printer.header("Report: Catalog files")
-
     table = [["File", "Status", "Tests"]]
-
     for file, result in tester.results.items():
         printer.filter_append(
             haystack=table,
@@ -84,21 +87,41 @@ def cli(files):
             ],
             level="minimal"
         )
-
     click.echo(tabulate.tabulate(table, tablefmt="grid"))
 
-    printer.header("Report: Metadata ")
+    #
+    #  Metadata
+    #
+    if include_metadata_report:
+        printer.header("Report: Metadata")
+        table = [["Identifier", "Key", "Language", "Metadata"]]
+        for identifier, collection in tester.catalog.objects.items():
+            table.append([identifier, "title", "", collection.title])
+            if collection.description:
+                table.append([identifier, "description", "", collection.description])
+            for dc in collection.dublin_core:
+                table.append([identifier, f"dc:{dc.term}", dc.language or "", dc.value])
+            for ex in collection.extensions:
+                table.append([identifier, f"{ex.term}", ex.language or "", ex.value])
+        click.echo(tabulate.tabulate(table))
 
-    table = [["Identifier", "Key", "Language", "Metadata"]]
-    for identifier, collection in tester.catalog.objects.items():
-        table.append([identifier, "title", "", collection.title])
-        if collection.description:
-            table.append([identifier, "description", "", collection.description])
-        for dc in collection.dublin_core:
-            table.append([identifier, f"dc:{dc.term}", dc.language or "", dc.value])
-        for ex in collection.extensions:
-            table.append([identifier, f"{ex.term}", ex.language or "", ex.value])
-    click.echo(tabulate.tabulate(table))
+    #
+    #  Texts
+    #
+    printer.header("Report: TEI files")
+    table = [["File", "Status", "Tests"]]
+    for test in tester.tests():
+        result = tester.results[test]
+        printer.filter_append(
+            haystack=table,
+            hay=[
+                os.path.relpath(test),
+                printer.checkmark(result.status),
+                "\n".join(printer.filter_logs(result.statuses))
+            ],
+            level="minimal"
+        )
+    click.echo(tabulate.tabulate(table, tablefmt="grid"))
 
 if __name__ == "__main__":
     cli()
