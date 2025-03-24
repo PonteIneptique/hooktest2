@@ -2,8 +2,8 @@ import dataclasses
 import os.path
 import re
 from typing import Dict, List, Optional, Tuple
-from dapitains.constants import PROCESSOR
-from dapitains.tei.citeStructure import CitableUnit, CitableStructure
+from dapitains.constants import get_xpath_proc
+from dapitains.tei.citeStructure import CitableUnit, CitableStructure, CiteStructureParser
 from dapitains.tei.document import Document
 from dapitains.metadata.xml_parser import parse, Catalog
 from lxml import etree as ET
@@ -27,8 +27,8 @@ class Result:
     @property
     def status(self):
         for s in self.statuses:
-            if not s:
-                return s
+            if not s.status:
+                return False
         return True
 
     def __repr__(self):
@@ -58,7 +58,7 @@ def _stringify_tree_count(tree) -> str:
     ])
 
 def check_naming_type(struct: CitableStructure) -> Tuple[bool, List[str]]:
-    citeType = re.match("^\w+$", struct.citeType)
+    citeType = re.match(r"^\w+$", struct.citeType)
     children = [
         check_naming_type(child)
         for child in struct.children
@@ -67,6 +67,37 @@ def check_naming_type(struct: CitableStructure) -> Tuple[bool, List[str]]:
         return False, [f"`{struct.citeType}`"]
     else:
         return False not in [a for a,b in children], [t for a, b in children for t in b]
+
+def _get_delim(s: CitableStructure) -> List[str]:
+    return ([s.delim] if s.delim else []) + [d for c in s.children for d in _get_delim(c)]
+
+def _check_reffs(
+        document: Document,
+        structure: CitableStructure,
+        previous_delim: Optional[List[str]] = None,
+        base_xpath: str = ""
+) -> List[Tuple[str, str, str]]:
+    if not previous_delim:
+        previous_delim = _get_delim(structure)
+
+    xproc = get_xpath_proc(document.xml)
+    returns: List[Tuple[str, str, str]] = []
+
+    # There is a limit here to this approach
+    # ToDo: Have something to deal with structure.xpath where we ensure that parents have the @n ???
+    xpath = "/".join([base_xpath, structure.xpath]) if base_xpath else structure.xpath
+    xpath_match = "/".join([base_xpath, structure.xpath_match]) if base_xpath else structure.xpath_match
+
+    for reff in (xproc.evaluate(xpath) or []):
+        reff = reff.get_string_value()
+        for delim in previous_delim:
+            if delim in reff:
+                returns.append((xpath, reff, delim))
+
+    for child in structure.children:
+        returns.extend(_check_reffs(document, child, previous_delim, xpath_match))
+
+    return returns
 
 
 
@@ -161,7 +192,7 @@ class Tester:
             for tree in doc.citeStructure:
                 s, details = check_naming_type(doc.citeStructure[tree].structure)
                 self.results[r.filepath].statuses.append(
-                    Log("citeTypes", s, details=f"citeType must be matching the regex ^\w+$. Problematic names: {', '.join(details)}" if not s else None)
+                    Log("citeTypes", s, details=f"citeType must be matching the regex ^\\w+$. Problematic names: {', '.join(details)}" if not s else None)
                 )
             reffs = {}
             try:
@@ -185,6 +216,27 @@ class Tester:
                         details="Unable to get reffs from citeStructure"
                     )
                 )
+            if reffs:
+                bad_refs = {}
+                for tree in reffs:
+                    bad_refs[tree] = {}
+                    for xpath, *values in _check_reffs(doc, doc.citeStructure[tree].structure):
+                        if xpath not in bad_refs:
+                            bad_refs[tree][xpath] = []
+                        bad_refs[tree][xpath].append(values)
+
+                    self.results[r.filepath].statuses.append(Log(
+                        f"citeRefs[Tree={tree}]",
+                        len(bad_refs[tree]) == 0,
+                        details="" if len(bad_refs[tree]) == 0 else (
+                                "Reference(s) contain[s] a delimiter, which will break parsing: " + "; ".join([
+                                    f"At xpath `{xpath}`: " + ", ".join([
+                                        f"`{ref}` (Delim: `{delim}`)"
+                                        for ref, delim in bad_refs[tree][xpath]
+                                    ]) for xpath in bad_refs[tree]
+                                ])
+                        )
+                    ))
 
         return [r.filepath for r in resources]
 

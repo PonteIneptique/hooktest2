@@ -17,5 +17,8 @@
         <resource identifier="urn:cts:greekLit:tlg2042.tlg005.1st1K-grc1" filepath="tlg2042.tlg005.1st1K-grc1.xml">
             <title xml:lang="lat">Commentarii in Evangelium Joannis</title>
         </resource>
+        <resource identifier="wrong_delim" filepath="wrong_delim.xml">
+            <title xml:lang="eng">Wrong Delimiter</title>
+        </resource>
     </members>
 </collection>

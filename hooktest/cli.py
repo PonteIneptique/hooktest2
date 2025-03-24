@@ -3,7 +3,7 @@ from typing import List
 from .tester import Tester, Log
 import click
 import tabulate
-
+import textwrap
 
 def to_small_caps(text):
     small_caps_map = str.maketrans(
@@ -27,6 +27,8 @@ class CustomLogger:
             "verbose": 0   # Everything is shown
         }
         self.level = self._eq[level]
+        self.width = 88
+        self._table_indent = "\n    "
 
     def _print(self, string, level: str = "minimal", indent: int = 0, color : str = None, **kwargs):
         if self._eq[level] >= self.level:
@@ -40,7 +42,14 @@ class CustomLogger:
 
     def filter_logs(self, content: List[Log]):
         return [
-            f"{log.name}: {self.green_red(log.details or "✔", log.status)}"
+            (
+                f"{log.name}: " + self.green_red(log.details or "✔", log.status) if log.status else (
+                    f"{log.name}: " + self.green_red(
+                        self._table_indent.join(textwrap.wrap(log.details, width=self.width)),
+                        log.status
+                    )
+                )
+            )
             for log in content
             if log.status == False or self.level <= 0
         ]
@@ -49,8 +58,13 @@ class CustomLogger:
         if self._eq[level] >= self.level:
             haystack.append(hay)
 
-    def green_red(self, string: str, status):
+    def green_red(self, string: str, status: bool):
         if not status:
+            if self._table_indent in string:
+                return (click.style(" ", fg="reset")+self._table_indent).join(
+                    click.style(substring, fg="red")
+                    for substring in string.split(self._table_indent)
+                )
             return click.style(string, fg="red")
         elif status and self.level <= 5:  # Only show green in details / verbose
             return click.style(string, fg="green")
