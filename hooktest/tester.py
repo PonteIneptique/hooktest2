@@ -1,9 +1,11 @@
 import dataclasses
+import os.path
 from typing import Dict, List, Optional, Tuple
-
+from dapitains.constants import PROCESSOR
 from dapitains.tei.citeStructure import CitableUnit
 from dapitains.tei.document import Document
 from dapitains.metadata.xml_parser import parse, Catalog
+from lxml import etree as ET
 
 
 @dataclasses.dataclass
@@ -66,36 +68,62 @@ class Tester:
         self.catalog = Catalog()
         self.results: Dict[str, Result] = {}
 
+        # Load the Relax NG schema
+        self.catalog_schema = ET.RelaxNG(
+            ET.parse(
+                os.path.join(os.path.dirname(os.path.abspath(__file__)), "resources", "collection-schema.rng")
+            )
+        )
+
+    def run_catalog_schema(self, filepath) -> Log:
+        status = self.catalog_schema.validate(ET.parse(filepath))
+        details = []
+        if not status:
+            for el in self.catalog_schema.error_log:
+                details.append(":".join(str(el).split("\n")[0].split(":")[6:]).strip())
+        return Log("schema", status, details="; ".join(details))
+
     def ingest(self, files: List[str]) -> Tuple[int, int]:
         """ Ingest catalog(s) files to test resources
 
         :param files: Catalog files following the Dapitains structure
         :returns: Number of collections found, number of resources found
         """
+
         for file in files:
+            file = os.path.relpath(file)
             try:
                 before = len(self.catalog.relationships)
                 _, collection = parse(file, self.catalog)
-                self.results[file] = Result(
-                    file, [
-                        Log("parse", True),
-                        Log(
-                            "relationships", True,
-                            details="+ {0} element(s)".format(len(self.catalog.relationships) - before)
-                        ),
-                        Log(
-                            "children", True,
-                            details="{0} child(ren)".format(len([
-                                pair
-                                for pair in self.catalog.relationships
-                                if collection.identifier in pair
-                            ]))
-                        )
-                    ]
-                )
             except Exception as E:
                 self.results[file] = Result(file, [Log("parse", False, E)])
-
+                continue
+            self.results[file] = Result(
+                file, [
+                    Log("parse", True),
+                    Log(
+                        "relationships", True,
+                        details="+ {0} element(s)".format(len(self.catalog.relationships) - before)
+                    ),
+                    Log(
+                        "children", True,
+                        details="{0} child(ren)".format(len([
+                            pair
+                            for pair in self.catalog.relationships
+                            if collection.identifier in pair
+                        ]))
+                    ),
+                    self.run_catalog_schema(file)
+                ]
+            )
+        for collection in self.catalog.objects.values():
+            if collection._metadata_filepath:
+                file = os.path.relpath(collection._metadata_filepath)
+                if file in self.results:
+                    continue
+                self.results[file] = Result(
+                    file, [self.run_catalog_schema(file)]
+                )
         return len(self.catalog.objects), len([o for o in self.catalog.objects.values() if o.resource])
 
     def tests(self):

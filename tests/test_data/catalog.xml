@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<?oxygen RNGSchema="schema.rng" type="xml" ?>
-<resource identifier="https://foo.bar/text" filepath="./tlg0004.tlg001.perseus-grc2.xml">
-    <title>Βίοι καὶ γνῶμαι τῶν ἐν φιλοσοφίᾳ εὐδοκιμησάντων</title>
-    <description>Diogenes Laertius</description>
+<collection identifier="https://foo.bar/default">
+    <title>A collection</title>
     <dublinCore>
-        <title xmlns="http://purl.org/dc/terms/">A simple resource</title>
+        <abstract xmlns="http://purl.org/dc/terms/">This is a perfect example of an absract.</abstract>
+        <abstract xmlns="http://purl.org/dc/terms/" xml:lang="fr">Et je peux traduire en français</abstract>
     </dublinCore>
-    <extensions>
-        <something xmlns="https://foaf.com/foaf">Truc</something>
-    </extensions>
-</resource>
+    <members>
+        <resource filepath="./resource.xml"/>
+    </members>
+</collection>

@@ -87,6 +87,18 @@ def cli(files):
 
     click.echo(tabulate.tabulate(table, tablefmt="grid"))
 
+    printer.header("Report: Metadata ")
+
+    table = [["Identifier", "Key", "Language", "Metadata"]]
+    for identifier, collection in tester.catalog.objects.items():
+        table.append([identifier, "title", "", collection.title])
+        if collection.description:
+            table.append([identifier, "description", "", collection.description])
+        for dc in collection.dublin_core:
+            table.append([identifier, f"dc:{dc.term}", dc.language or "", dc.value])
+        for ex in collection.extensions:
+            table.append([identifier, f"{ex.term}", ex.language or "", ex.value])
+    click.echo(tabulate.tabulate(table))
 
 if __name__ == "__main__":
     cli()
