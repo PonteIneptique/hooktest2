@@ -14,5 +14,8 @@
         <resource identifier="test" filepath="tlg0005.tlg001.perseus-grc2.xml">
             <title>Εἰδύλλια</title>
         </resource>
+        <resource identifier="urn:cts:greekLit:tlg2042.tlg005.1st1K-grc1" filepath="tlg2042.tlg005.1st1K-grc1.xml">
+            <title xml:lang="lat">Commentarii in Evangelium Joannis</title>
+        </resource>
     </members>
 </collection>

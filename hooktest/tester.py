@@ -1,8 +1,9 @@
 import dataclasses
 import os.path
+import re
 from typing import Dict, List, Optional, Tuple
 from dapitains.constants import PROCESSOR
-from dapitains.tei.citeStructure import CitableUnit
+from dapitains.tei.citeStructure import CitableUnit, CitableStructure
 from dapitains.tei.document import Document
 from dapitains.metadata.xml_parser import parse, Catalog
 from lxml import etree as ET
@@ -55,6 +56,18 @@ def _stringify_tree_count(tree) -> str:
         )
         for level, details in tree.items()
     ])
+
+def check_naming_type(struct: CitableStructure) -> Tuple[bool, List[str]]:
+    citeType = re.match("^\w+$", struct.citeType)
+    children = [
+        check_naming_type(child)
+        for child in struct.children
+    ]
+    if not citeType:
+        return False, [f"`{struct.citeType}`"]
+    else:
+        return False not in [a for a,b in children], [t for a, b in children for t in b]
+
 
 
 class Tester:
@@ -145,18 +158,34 @@ class Tester:
                     Log("citeTrees", True, details=f"Tree(s) found: {len(doc.citeStructure)}")
                 ]
             )
-            # Now check the reference / structure
-            reffs = {tree: doc.get_reffs(tree) for tree in doc.citeStructure}
-            self.results[r.filepath].statuses.append(
-                Log(
-                    "citeStructures",
-                    True,
-                    details="\n".join([
-                        f"Tree:{tree}->{_stringify_tree_count(_count_tree(reffs[tree]))}"
-                        for tree in reffs
-                    ])
+            for tree in doc.citeStructure:
+                s, details = check_naming_type(doc.citeStructure[tree].structure)
+                self.results[r.filepath].statuses.append(
+                    Log("citeTypes", s, details=f"citeType must be matching the regex ^\w+$. Problematic names: {', '.join(details)}" if not s else None)
                 )
-            )
+            reffs = {}
+            try:
+            # Now check the reference / structure
+                reffs = {tree: doc.get_reffs(tree) for tree in doc.citeStructure}
+                self.results[r.filepath].statuses.append(
+                    Log(
+                        "citeStructures",
+                        True,
+                        details="\n".join([
+                            f"Tree:{tree}->{_stringify_tree_count(_count_tree(reffs[tree]))}"
+                            for tree in reffs
+                        ])
+                    )
+                )
+            except:
+                self.results[r.filepath].statuses.append(
+                    Log(
+                        "citeStructures",
+                        False,
+                        details="Unable to get reffs from citeStructure"
+                    )
+                )
+
         return [r.filepath for r in resources]
 
 
