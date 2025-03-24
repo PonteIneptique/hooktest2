@@ -186,13 +186,13 @@ class Tester:
                 r.filepath,
                 [
                     Log("parse", True),
-                    Log("citeTrees", True, details=f"Tree(s) found: {len(doc.citeStructure)}")
+                    Log("parse(refsDecl/@n)", True, details=f"Tree(s) found: {len(doc.citeStructure)}")
                 ]
             )
             for tree in doc.citeStructure:
                 s, details = check_naming_type(doc.citeStructure[tree].structure)
                 self.results[r.filepath].statuses.append(
-                    Log("citeTypes", s, details=f"citeType must be matching the regex ^\\w+$. Problematic names: {', '.join(details)}" if not s else None)
+                    Log("citeStructure/@unit", s, details=f"citeType must be matching the regex ^\\w+$. Problematic names: {', '.join(details)}" if not s else None)
                 )
             reffs = {}
             try:
@@ -200,7 +200,7 @@ class Tester:
                 reffs = {tree: doc.get_reffs(tree) for tree in doc.citeStructure}
                 self.results[r.filepath].statuses.append(
                     Log(
-                        "citeStructures",
+                        "parse(citeStructures)",
                         True,
                         details="\n".join([
                             f"Tree:{tree}->{_stringify_tree_count(_count_tree(reffs[tree]))}"
