@@ -1,6 +1,7 @@
 import dataclasses
 import os.path
 import re
+from collections import Counter
 from typing import Dict, List, Optional, Tuple
 from dapitains.constants import get_xpath_proc
 from dapitains.tei.citeStructure import CitableUnit, CitableStructure, CiteStructureParser
@@ -71,7 +72,7 @@ def check_naming_type(struct: CitableStructure) -> Tuple[bool, List[str]]:
 def _get_delim(s: CitableStructure) -> List[str]:
     return ([s.delim] if s.delim else []) + [d for c in s.children for d in _get_delim(c)]
 
-def _check_reffs(
+def _check_refs(
         document: Document,
         structure: CitableStructure,
         previous_delim: Optional[List[str]] = None,
@@ -95,10 +96,34 @@ def _check_reffs(
                 returns.append((xpath, reff, delim))
 
     for child in structure.children:
-        returns.extend(_check_reffs(document, child, previous_delim, xpath_match))
+        returns.extend(_check_refs(document, child, previous_delim, xpath_match))
 
     return returns
 
+
+def _check_dbl_refs(
+        document: Document,
+        structure: CitableStructure,
+        base_xpath: str = ""
+) -> List[Tuple[str, str]]:
+    xproc = get_xpath_proc(document.xml)
+    returns: List[Tuple[str, str]] = []
+
+    # There is a limit here to this approach
+    # ToDo: Have something to deal with structure.xpath where we ensure that parents have the @n ???
+    xpath = "/".join([base_xpath, structure.xpath]) if base_xpath else structure.xpath
+    xpath_match = "/".join([base_xpath, structure.xpath_match]) if base_xpath else structure.xpath_match
+
+    counter = Counter([r.get_string_value() for r in (xproc.evaluate(xpath) or [])])
+    for key, value in counter.most_common(len(counter)):
+        if value == 1:
+            break
+        returns.append((xpath, f"`{key}` (x{value})"))
+
+    for child in structure.children:
+        returns.extend(_check_dbl_refs(document, child, xpath_match))
+
+    return returns
 
 
 class Tester:
@@ -218,15 +243,22 @@ class Tester:
                 )
             if reffs:
                 bad_refs = {}
+                double_refs = {}
                 for tree in reffs:
                     bad_refs[tree] = {}
-                    for xpath, *values in _check_reffs(doc, doc.citeStructure[tree].structure):
+                    double_refs[tree] = {}
+                    for xpath, *values in _check_refs(doc, doc.citeStructure[tree].structure):
                         if xpath not in bad_refs:
                             bad_refs[tree][xpath] = []
                         bad_refs[tree][xpath].append(values)
 
+                    for xpath, value in _check_dbl_refs(doc, doc.citeStructure[tree].structure):
+                        if xpath not in double_refs:
+                            double_refs[tree][xpath] = []
+                        double_refs[tree][xpath].append(value)
+
                     self.results[r.filepath].statuses.append(Log(
-                        f"citeRefs[Tree={tree}]",
+                        f"forbiddenRefs[Tree={tree}]",
                         len(bad_refs[tree]) == 0,
                         details="" if len(bad_refs[tree]) == 0 else (
                                 "Reference(s) contain[s] a delimiter, which will break parsing: " + "; ".join([
@@ -234,6 +266,19 @@ class Tester:
                                         f"`{ref}` (Delim: `{delim}`)"
                                         for ref, delim in bad_refs[tree][xpath]
                                     ]) for xpath in bad_refs[tree]
+                                ])
+                        )
+                    ))
+
+                    self.results[r.filepath].statuses.append(Log(
+                        f"duplicateRefs[Tree={tree}]",
+                        len(double_refs[tree]) == 0,
+                        details="" if len(double_refs[tree]) == 0 else (
+                                "Reference(s) at following XPath(s) are found more than once " + "; ".join([
+                                    f"XPath `{xpath}`: " + ", ".join([
+                                        f"{ref}"
+                                        for ref in double_refs[tree][xpath]
+                                    ]) for xpath in double_refs[tree]
                                 ])
                         )
                     ))
