@@ -23,4 +23,7 @@ python3 setup.py install
 
 ## How to run
 
-`hooktest path/to/your/catalog.xml` where catalog are using [`hooktest/resources/collection-schema.rng`](hooktest/resources/collection-schema.rng)
+If you want to test a system where you have a root catalog file, you can run `hooktest path/to/your/catalog.xml`
+where catalog are using [`hooktest/resources/collection-schema.rng`](hooktest/resources/collection-schema.rng).
+
+Otherwise, run `hooktest --no-catalog /path/to/your/tei/files.xml`.

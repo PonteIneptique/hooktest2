@@ -79,35 +79,43 @@ class CustomLogger:
 @click.argument("files", nargs=-1, type=click.Path(file_okay=True, dir_okay=False, exists=True))
 @click.option("-m", "--include-metadata-report", is_flag=True, default=False)
 @click.option("-v", "--verbosity", default="minimal", type=click.Choice(["minimal", "details", "verbose"]))
-def cli(files, include_metadata_report, verbosity):
+@click.option("--catalog/--no-catalog", default=True, is_flag=True,
+              help="Use --no-catalog when you only one to test single files")
+def cli(files, include_metadata_report: bool, verbosity: str, catalog: bool):
     tester = Tester()
     printer = CustomLogger(verbosity)
-    count_collections, count_resources = tester.ingest(files)
+    if catalog:
+        count_collections, count_resources = tester.ingest(files)
+    else:
+        count_resources = tester.ingest_tei_only(files)
+        count_collections = 0
 
-    printer.info(f"Found {count_collections} collection(s)")
+    if catalog:
+        printer.info(f"Found {count_collections} collection(s)")
     printer.info(f"Found {count_resources} resource(s)")
 
     #
     #  Collection files
     #
-    printer.header("Report: Catalog files")
-    table = [["File", "Status", "Tests"]]
-    for file, result in tester.results.items():
-        printer.filter_append(
-            haystack=table,
-            hay=[
-                file,
-                printer.checkmark(result.status),
-                "\n".join(printer.filter_logs(result.statuses))
-            ],
-            level="minimal"
-        )
-    click.echo(tabulate.tabulate(table, tablefmt="grid"))
+    if catalog:
+        printer.header("Report: Catalog files")
+        table = [["File", "Status", "Tests"]]
+        for file, result in tester.results.items():
+            printer.filter_append(
+                haystack=table,
+                hay=[
+                    file,
+                    printer.checkmark(result.status),
+                    "\n".join(printer.filter_logs(result.statuses))
+                ],
+                level="minimal"
+            )
+        click.echo(tabulate.tabulate(table, tablefmt="grid"))
 
     #
     #  Metadata
     #
-    if include_metadata_report:
+    if catalog and include_metadata_report:
         printer.header("Report: Metadata")
         table = [["Identifier", "Key", "Language", "Metadata"]]
         for identifier, collection in tester.catalog.objects.items():

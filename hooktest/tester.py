@@ -4,6 +4,7 @@ import re
 from collections import Counter
 from typing import Dict, List, Optional, Tuple
 from dapytains.constants import get_xpath_proc
+from dapytains.metadata.classes import Collection
 from dapytains.tei.citeStructure import CitableUnit, CitableStructure, CiteStructureParser
 from dapytains.tei.document import Document
 from dapytains.metadata.xml_parser import parse, Catalog
@@ -151,6 +152,23 @@ class Tester:
             for el in self.catalog_schema.error_log:
                 details.append(":".join(str(el).split("\n")[0].split(":")[6:]).strip())
         return Log("schema", status, details="; ".join(details))
+
+    def ingest_tei_only(self, files: List[str]) -> int:
+        """ Ingest TEI Files as resources (does not require catalogs)
+
+        :param files: TEI files following the Dapitains structure
+        :returns: Number of resources found
+        """
+        self.catalog.objects = {
+            os.path.relpath(file): Collection(
+                title=os.path.relpath(file),
+                identifier=os.path.relpath(file),
+                filepath=os.path.relpath(file),
+                resource=True
+            )
+            for file in files
+        }
+        return len(self.catalog.objects)
 
     def ingest(self, files: List[str]) -> Tuple[int, int]:
         """ Ingest catalog(s) files to test resources
