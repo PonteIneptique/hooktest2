@@ -1,7 +1,26 @@
-## ToDo
+![Header for HookTest](images/header.png)
 
-- [x] `references` should not contain what is used by `delim`
-- [x] `references` can't exist twice in the tree
-- [ ] Same `reference` can't match two different xpath ? (should not happen I guess)
-- [ ] Same XPath should not exist twice in the CiteStructure ?
-- [ ] Same XPath at the same level / same delim ?
+![License: MPL 2.0](https://opensource.org/licenses/MPL-2.0)
+
+Dapytains provides a server-side or client-side library to deal with
+[Distributed Text Services APIs](https://distributed-text-services.github.io/) as well as
+TEI XML files using the [CiteStructure](https://tei-c.org/release/doc/tei-p5-doc/en/html/ref-citeStructure.html)
+encoding of their machine actionable architecture, allowing to split and retrieve reference in a file
+"without human intervention".
+
+HookTestv2, which replaces the original [HookTest](https://hal.science/hal-01709868/), allows for testing those file,
+including tests for catalog registry.
+
+**This software is still quite in alpha mode, feel free to report bugs**
+
+## How to install
+
+```sh
+git clone https://github.com/cllg-project/hooktest.git
+cd hooktest
+python3 setup.py install
+```
+
+## How to run
+
+`hooktest path/to/your/catalog.xml` where catalog are using [`hooktest/resources/collection-schema.rng`](hooktest/resources/collection-schema.rng)

@@ -1,9 +1,9 @@
 import os.path
 from typing import List
-from .tester import Tester, Log
 import click
 import tabulate
 import textwrap
+from .tester import Tester, Log
 
 def to_small_caps(text):
     small_caps_map = str.maketrans(
@@ -78,9 +78,10 @@ class CustomLogger:
 @click.command
 @click.argument("files", nargs=-1, type=click.Path(file_okay=True, dir_okay=False, exists=True))
 @click.option("-m", "--include-metadata-report", is_flag=True, default=False)
-def cli(files, include_metadata_report):
+@click.option("-v", "--verbosity", default="minimal", type=click.Choice(["minimal", "details", "verbose"]))
+def cli(files, include_metadata_report, verbosity):
     tester = Tester()
-    printer = CustomLogger("verbose")
+    printer = CustomLogger(verbosity)
     count_collections, count_resources = tester.ingest(files)
 
     printer.info(f"Found {count_collections} collection(s)")

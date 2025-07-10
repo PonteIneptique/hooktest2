@@ -3,10 +3,10 @@ import os.path
 import re
 from collections import Counter
 from typing import Dict, List, Optional, Tuple
-from dapitains.constants import get_xpath_proc
-from dapitains.tei.citeStructure import CitableUnit, CitableStructure, CiteStructureParser
-from dapitains.tei.document import Document
-from dapitains.metadata.xml_parser import parse, Catalog
+from dapytains.constants import get_xpath_proc
+from dapytains.tei.citeStructure import CitableUnit, CitableStructure, CiteStructureParser
+from dapytains.tei.document import Document
+from dapytains.metadata.xml_parser import parse, Catalog
 from lxml import etree as ET
 
 
