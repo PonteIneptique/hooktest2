@@ -27,3 +27,12 @@ If you want to test a system where you have a root catalog file, you can run `ho
 where catalog are using [`hooktest/resources/collection-schema.rng`](hooktest/resources/collection-schema.rng).
 
 Otherwise, run `hooktest --no-catalog /path/to/your/tei/files.xml`.
+
+
+## Support
+
+Funded via the CLLG Project.
+
+Ce travail a bénéficié d’une aide de l’État gérée par l’Agence Nationale de la
+Recherche au titre de France 2030 portant la référence « ANR-24-RRII- 0002 » et opéré par
+le Programme Inria Quadrant.
