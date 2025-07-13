@@ -6,7 +6,7 @@ from typing import Dict, List, Optional, Tuple
 from dapytains.constants import get_xpath_proc
 from dapytains.metadata.classes import Collection
 from dapytains.tei.citeStructure import CitableUnit, CitableStructure, CiteStructureParser
-from dapytains.tei.document import Document
+from dapytains.tei.document import Document, xpath_eval
 from dapytains.metadata.xml_parser import parse, Catalog
 from lxml import etree as ET
 
@@ -34,7 +34,9 @@ class Result:
         return True
 
     def __repr__(self):
-        return f"<Result target='{self.target}'>\n\t{"\n".join(["\t"+repr(log) for log in self.statuses])}\n</Result>"
+        NL = "\n"
+        TB = "\t"
+        return f"<Result target='{self.target}'>\n\t{NL.join([TB+repr(log) for log in self.statuses])}\n</Result>"
 
 
 def _count_tree(units: List[CitableUnit], types = None) -> str:
@@ -90,7 +92,7 @@ def _check_refs(
     xpath = "/".join([base_xpath, structure.xpath]) if base_xpath else structure.xpath
     xpath_match = "/".join([base_xpath, structure.xpath_match]) if base_xpath else structure.xpath_match
 
-    for reff in (xproc.evaluate(xpath) or []):
+    for reff in xpath_eval(xproc, xpath):
         reff = reff.get_string_value()
         for delim in previous_delim:
             if delim in reff:
@@ -115,7 +117,7 @@ def _check_dbl_refs(
     xpath = "/".join([base_xpath, structure.xpath]) if base_xpath else structure.xpath
     xpath_match = "/".join([base_xpath, structure.xpath_match]) if base_xpath else structure.xpath_match
 
-    counter = Counter([r.get_string_value() for r in (xproc.evaluate(xpath) or [])])
+    counter = Counter([r.get_string_value() for r in xpath_eval(xproc, xpath)])
     for key, value in counter.most_common(len(counter)):
         if value == 1:
             break
