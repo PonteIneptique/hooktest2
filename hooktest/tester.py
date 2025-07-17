@@ -2,7 +2,7 @@ import dataclasses
 import os.path
 import re
 from collections import Counter
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple, Union
 from dapytains.constants import get_xpath_proc
 from dapytains.metadata.classes import Collection
 from dapytains.tei.citeStructure import CitableUnit, CitableStructure, CiteStructureParser
@@ -35,7 +35,7 @@ CiteStructureParser._dispatch = _dispatch
 class Log:
     name: str
     status: bool
-    exception: Optional[Exception | str] = None
+    exception: Optional[Union[Exception, str]] = None
     details: Optional[str] = None
 
     def __repr__(self):
@@ -149,11 +149,7 @@ def _check_dbl_refs(
 
 
 class Tester:
-    """
-    >>> p = Tester()
-    >>> p.ingest(["/home/tclerice/dev/MyDapytains/tests/catalog/example-collection.xml"])
-    >>> p.results
-    >>> p.tests()
+    """ Tester class, allows for retrieving results outside of the CLI
     """
     def __init__(self):
         self.catalog = Catalog()

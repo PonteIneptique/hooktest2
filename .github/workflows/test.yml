@@ -25,4 +25,4 @@ jobs:
         pip install pytest pytest-cov coveralls pytest-sugar requests-mock
     - name: Run Tests
       run: |
-        pytest --doctest-modules --cov=hooktest --verbose
+        pytest --cov=hooktest --verbose

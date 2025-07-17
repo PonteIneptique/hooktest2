@@ -5,7 +5,7 @@ pip install dapytains mycapytain
 import lxml.etree as et
 import re
 from typing import List
-from dapitains.tei.document import Document
+from dapytains.tei.document import Document
 from MyCapytain.resources.texts.local.capitains.cts import CapitainsCtsText
 
 

@@ -1,0 +1,7 @@
+[run]
+source = hooktest
+
+[report]
+omit =
+    */tests/*
+    */site-packages/*
