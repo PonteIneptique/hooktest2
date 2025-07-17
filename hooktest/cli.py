@@ -145,6 +145,7 @@ def cli(files, include_metadata_report: bool, verbosity: str, catalog: bool):
             level="minimal"
         )
     click.echo(tabulate.tabulate(table, tablefmt="grid"))
+    return tester
 
 if __name__ == "__main__":
     cli()

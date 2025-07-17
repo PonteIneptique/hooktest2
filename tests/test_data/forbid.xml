@@ -23,14 +23,14 @@
     <text>
         <body>
             <div n="1">
-                <head>Section 2</head>
-                <div n="2">
-                    <head>Subsection 2.2</head>
-                    <p>Some text in subsection 2.2.</p>
+                <head>Section 1</head>
+                <div n="1.1">
+                    <head>Subsection 1.1</head>
+                    <p>Some text in subsection 1.1.</p>
                 </div>
-                <div n="2">
-                    <head>Subsection 2.2</head>
-                    <p>Some text in subsection 2.2.</p>
+                <div n="1">
+                    <head>Subsection 1.2</head>
+                    <p>Some text in subsection 1.2.</p>
                 </div>
             </div>
         </body>
