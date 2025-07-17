@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TEI xmlns="http://www.tei-c.org/ns/1.0">
+    <teiHeader>
+        <fileDesc>
+            <titleStmt>
+                <title>Based on Julia Balbilla, Epigram 1 (28)</title>
+                <editor xml:id="gb">Gabriel Bodard</editor>
+            </titleStmt>
+            <publicationStmt>
+                <authority>Institute of Classical Studies, University of London</authority>
+            </publicationStmt>
+        </fileDesc>
+        <encodingDesc>
+            <refsDecl n="default">
+                <citeStructure use="@n" match="/TEI/text/body/div[@type='edition']//lb" unit="line"
+                />
+            </refsDecl>
+            <refsDecl n="translations">
+                <citeStructure use="@xml:lang" match="/TEI/text/body/div[@type='translation']"
+                    unit="language">
+                    <citeStructure use="@n" match=".//lb" unit="line" delim="."/>
+                </citeStructure>
+            </refsDecl>
+        </encodingDesc>
+    </teiHeader>
+    <facsimile>
+        <surface/>
+    </facsimile>
+    <text>
+        <body>
+            <div type="edition">
+                <ab>
+                    <lb n="1"/>Ἰουλίας ΒαλΛίλλης· <lb n="2"/>ὅτε ἤκουσε τοῦ Μέμνος <lb n="3"/>ὁ
+                    Σεβαστὸς Ἁδριανός. </ab>
+                <lg>
+                    <l n="1">
+                        <lb n="4"/>Μέμνονα πυνθανόμαν Αἰγύπτιον, ἀλίω αὔγαι</l>
+                    <l n="2">
+                        <lb n="5"/>αἰθόμενον, φώνην ΘηβαΐΧω ’πυ λίθω.</l>
+                    <l n="3">
+                        <lb n="6"/>Ἀδρίανον δ’ ἐσίδων, τὸν παμβασίληα, πρὶν αὔγας</l>
+                    <l n="4">
+                        <lb n="7"/>ἀελίω χαίρην εἶπέ Γοι ὠς δύνατον.</l>
+                    <l n="5">
+                        <lb n="8"/>Τίταν δ’ ὄττ’ ἐλάων λεύκοισι δι’ αἴθερος ἴπποις</l>
+                    <l n="6">
+                        <lb n="9"/>ἐνὶ σκίαι ὠράων δεύτερον ἦχε μέτρον,</l>
+                    <l n="7">
+                        <lb n="10"/>ὠς χάλκοιο τύπεντς ἴη Μέμνων πάλιν αὔδαν</l>
+                    <l n="8">
+                        <lb n="11"/>ὀξύτονον· χαίρω αὶ τρίτον ἆχον ἴη.</l>
+                    <l n="9">
+                        <lb n="12"/>κοίρανος Ἀδρίανο λις δ’ ἀσπάσσατο καὖτος</l>
+                    <l n="10">
+                        <lb n="13"/>Μέμνονα, κἀν λαι κάλλιεν ὀψγόνοις</l>
+                    <l n="11">
+                        <lb n="14"/>γρόππατα σαμαίνοτά τ’ ὄσ’ εὔϊδε κὤσσ’ ἐσάκουσε,</l>
+                    <l n="12">
+                        <lb n="15"/>δῆλον παῖσι δ’ ἔγετ’ ὤς Γε φίλισι θέοι.</l>
+                </lg>
+            </div>
+            <div type="translation" xml:lang="en">
+                <p>From Julia Balbilla: When Augustus Hadrian heard Memnon. I had learned that the
+                    Egyptian Memnon, when ignited by the rays of the sun, released a voice from the
+                    Theban stone. Spying Hadrian, the All-King, before the sun’s rays, he gave
+                    greeting as he was able to. But when Titan, rising into the Aether with his
+                    white horses, drove into shadows the second measure of hours, like bronze being
+                    beaten, Memnon again gave voice to a piercing cry; he let out yet a third cry in
+                    greeting. And Emperor Hadrian himself gave many greeting in turn to Memnon, and
+                    left behind on the stone for those yet to be born lines showing what he had seen
+                    and heard, and made clear to everyone that the gods love him.</p>
+            </div>
+            <div type="translation" xml:lang="fr">
+                <p>De Julia Balbilla, quand l’Auguste Hadrien entendit Memnon :</p>
+                <p>« Memnon l’Égyptien, avais-je entendu dire, échauffé par les rayons du soleil,
+                    faisait entendre une voix qui sortait de la pierre thébaine. Il aperçut Hadrien,
+                    souverain roi, avant que brille le soleil, et le salua comme il pouvait. Mais
+                    lorsque Titan, s’élançant dans les airs avec ses blancs chevaux, maintenait dans
+                    l’ombre la seconde division des heures, on eût dit qu’on frappait un instrument
+                    de cuivre, et Memnon émit de nouveau un cri aigu; comme salut, il émit même un
+                    son pour la troisième fois. Alors l’Empereur Hadrien prodigua les saluts, lui
+                    aussi, à Memnon, et, sur la pierre, il laissa pour la postérité des vers qui
+                    montrent tout ce qu’il avait vu et entendu. Il apparut clairement à tous que les
+                    dieux le chérissaient. » </p>
+            </div>
+            <div type="translation" xml:lang="it">
+                <p>
+                    <lb/>Di Giulia Balbilla <lb/>quando la voce di Memnone <lb/>l'augusto Adriano
+                    udi.</p>
+                <p>
+                    <lb n="1"/>Avevo sentito dire che Memnone l'egizio, dal raggio del sole <lb
+                        n="2"/>scaldato, faceva udire una voce dalla pietra tebana. <lb n="3"
+                        />Appena vide Adriano sommo sovrano, prima del comparire <lb n="4"/>dei raggi
+                    del sole, gli disse 'salve' come poteva. <lb n="5"/>Ma quando il Titano,
+                    lanciandosi coi suoi bianchi cavalli <lb n="6"/>attraverso l'aere, teneva
+                    nell'ombra l'ora seconda, <lb n="7"/>come un bronzo colpito Memnone di nuovo
+                    gridò con voce <lb n="8"/>acuta; salutando ancora per la terza volta emise un
+                    suono. <lb n="9"/>Allora l'imperatore Adriano salutò a lungo anche lui <lb
+                        n="10"/>Memnone a su una stele lasciò per i posteri dei versi, <lb n="11"
+                        />che mostrassero quante cose egli aveva visto a ascoltato. <lb n="12"/>Fu
+                    chiaro a tutti quanto gli dei lo amino.</p>
+            </div>
+            <div type="bibliography">
+                <listBibl>
+                    <bibl xml:id="letronne1848">
+                        <author>Antoine Jean Letronne</author>, <title level="m">Recueil des
+                            inscriptions grecques et latines de l'Égypte</title>, Paris:
+                        L'Imprimerie royal, <date>1848</date>. <citedRange>CCCXLIII</citedRange>
+                    </bibl>
+                    <bibl xml:id="aeb1960">
+                        <author>André Bernand</author> &amp; <author>Étienne Bernand</author>.
+                        <title level="m">Les inscriptions grecques et latines du Colosse de
+                            Memnon.</title> «Institut Français d'Archéologie Orientale, Bibliothèque
+                        d'étude», 31; Paris <date>1960</date>. <citedRange>28</citedRange>
+                    </bibl>
+                    <bibl xml:id="PHI">
+                        <title>PHI</title>
+                        <citedRange>227949</citedRange>´
+                        <ref>http://epigraphy.packhum.org/text/227949</ref>
+                    </bibl>
+                    <bibl xml:id="ac2011">
+                        <author>Amalia M. Cirio</author>. <title level="m">Gli epigrammi di Giulia
+                            Balbilla (ricordi di una dama di corte) e altri testi al femminile sul
+                            Colosso di Memnone.</title> Pensa Multimedia, <date>2011</date>.
+                        <citedRange>1</citedRange>
+                    </bibl>
+                    <bibl>PIR2 I 650</bibl>
+                </listBibl>
+            </div>
+        </body>
+    </text>
+</TEI>
