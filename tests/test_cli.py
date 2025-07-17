@@ -23,7 +23,7 @@ def test_simple_passing_file(runner):
     result = runner.invoke(cli, ['--no-catalog', get_path("correct_simple.xml")], standalone_mode=False)
     assert '✗' not in result.output, "File has a failing test"
     assert 'duplicateRefs[Tree=default]' not in result.output, "Tree Default has no dup reff"
-    assert count_failing(result.return_value.results[get_path("duplicate.xml")]) == 0, "Zero failing test"
+    assert count_failing(result.return_value.results[get_path("correct_simple.xml")]) == 0, "Zero failing test"
 
 
 def test_double_tree_file(runner):
@@ -44,6 +44,10 @@ def test_duplicate_refs(runner):
     result = runner.invoke(cli, ['--no-catalog', get_path("duplicate.xml")], standalone_mode=False)
     assert '✗' in result.output, "File has a failing test"
     assert 'duplicateRefs[Tree=default]' in result.output, "Tree Default has duplicate reff"
+    assert "`1`" in result.output, "Level 1 reference `1` is duplicated"
+    assert "`1.2`" in result.output, "Level 2 reference `1.2` is duplicated within the first 1"
+    assert "`1.3`" in result.output, "Level 2 reference `1.3` is duplicated across both 1"
+    assert "`1.1`" not in result.output, "Level 2 reference `1.1` is not duplicated across both 1"
     assert count_failing(result.return_value.results[get_path("duplicate.xml")]) == 1, "Only one failing test"
 
 

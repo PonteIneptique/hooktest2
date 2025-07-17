@@ -11,6 +11,26 @@ from dapytains.metadata.xml_parser import parse, Catalog
 from lxml import etree as ET
 
 
+# Monkey patch for test
+def _dispatch(self, child_xpath: str, structure: CitableStructure, xpath_processor, unit: CitableUnit, level: int):
+    if len(structure.children) == 1:
+        for element in xpath_eval(xpath_processor, child_xpath):
+            self.find_refs(
+                root=element,
+                structure=structure.children[0],
+                unit=unit,
+                level=level
+            )
+    else:
+        for element in xpath_eval(xpath_processor, child_xpath):
+            self.find_refs_from_branches(
+                root=element,
+                structure=structure.children,
+                unit=unit,
+                level=level
+            )
+CiteStructureParser._dispatch = _dispatch
+
 @dataclasses.dataclass
 class Log:
     name: str
@@ -106,25 +126,24 @@ def _check_refs(
 
 def _check_dbl_refs(
         document: Document,
-        structure: CitableStructure,
-        base_xpath: str = ""
-) -> List[Tuple[str, str]]:
-    xproc = get_xpath_proc(document.xml)
-    returns: List[Tuple[str, str]] = []
+        tree: str
+) -> List[Tuple[str, str, int]]:
+    """The current system needs to be rerun multiple time, as document.get_refs does not evaluate multiple time the elements"""
+    returns = []
+    def struct_flatten(units: List[CitableUnit]) -> List[Tuple[str, str]]:
+        local_units = [(u.ref, document.citeStructure[tree].generate_xpath(u.ref)) for u in units]
+        for u in units:
+            if u.children:
+                local_units.extend(struct_flatten(u.children))
+        return local_units
 
-    # There is a limit here to this approach
-    # ToDo: Have something to deal with structure.xpath where we ensure that parents have the @n ???
-    xpath = "/".join([base_xpath, structure.xpath]) if base_xpath else structure.xpath
-    xpath_match = "/".join([base_xpath, structure.xpath_match]) if base_xpath else structure.xpath_match
-
-    counter = Counter([r.get_string_value() for r in xpath_eval(xproc, xpath)])
-    for key, value in counter.most_common(len(counter)):
-        if value == 1:
-            break
-        returns.append((xpath, f"`{key}` (x{value})"))
-
-    for child in structure.children:
-        returns.extend(_check_dbl_refs(document, child, xpath_match))
+    counter = Counter(struct_flatten(document.get_reffs(tree)))
+    for ((reference, xpath), match_count) in counter.items():
+        if match_count > 1:
+            print(xpath)
+            count = len(list(xpath_eval(document.xpath_processor, xpath)))
+            if count > 1:
+                returns.append((xpath, f"`{reference}`", count))
 
     return returns
 
@@ -272,10 +291,8 @@ class Tester:
                             bad_refs[tree][xpath] = []
                         bad_refs[tree][xpath].append(values)
 
-                    for xpath, value in _check_dbl_refs(doc, doc.citeStructure[tree].structure):
-                        if xpath not in double_refs:
-                            double_refs[tree][xpath] = []
-                        double_refs[tree][xpath].append(value)
+                    for xpath, value, count in _check_dbl_refs(doc, tree):
+                        double_refs[tree][xpath] = (value, count)
 
                     self.results[r.filepath].statuses.append(Log(
                         f"forbiddenRefs[Tree={tree}]",
@@ -294,11 +311,8 @@ class Tester:
                         f"duplicateRefs[Tree={tree}]",
                         len(double_refs[tree]) == 0,
                         details="" if len(double_refs[tree]) == 0 else (
-                                "Reference(s) at following XPath(s) are found more than once " + "; ".join([
-                                    f"XPath `{xpath}`: " + ", ".join([
-                                        f"{ref}"
-                                        for ref in double_refs[tree][xpath]
-                                    ]) for xpath in double_refs[tree]
+                                "Reference(s) at following XPath(s) are found more than once: " + "; ".join([
+                                    f"Reference {ref} (×{count}, xPath: `{xpath}`): " for xpath, (ref, count) in double_refs[tree].items()
                                 ])
                         )
                     ))

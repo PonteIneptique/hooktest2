@@ -1,6 +1,7 @@
 ![Header for HookTest](images/header.png)
 
-![License: MPL 2.0](https://opensource.org/licenses/MPL-2.0)
+[![License: MPL 2.0](https://img.shields.io/badge/License-MPL%202.0-brightgreen.svg)](https://opensource.org/licenses/MPL-2.0) 
+[![Software Test](https://github.com/cllg-project/hooktest/actions/workflows/test.yml/badge.svg)](https://github.com/cllg-project/hooktest/actions/workflows/test.yml)
 
 Dapytains provides a server-side or client-side library to deal with
 [Distributed Text Services APIs](https://distributed-text-services.github.io/) as well as
