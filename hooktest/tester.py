@@ -3,7 +3,7 @@ import os.path
 import re
 from collections import Counter
 from typing import Dict, List, Optional, Tuple, Union
-from dapytains.constants import get_xpath_proc
+from dapytains.processor import get_xpath_proc
 from dapytains.metadata.classes import Collection
 from dapytains.tei.citeStructure import CitableUnit, CitableStructure, CiteStructureParser
 from dapytains.tei.document import Document, xpath_eval
@@ -104,7 +104,7 @@ def _check_refs(
     if not previous_delim:
         previous_delim = _get_delim(structure)
 
-    xproc = get_xpath_proc(document.xml)
+    xproc = get_xpath_proc(document.xml, processor=document.xml_processor)
     returns: List[Tuple[str, str, str]] = []
 
     # There is a limit here to this approach
